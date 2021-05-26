@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Page Title</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+</head>
+<body>
+
+  <button id="btn">Ahoj</button>
+  <script>
+    const socket = new WebSocket("ws://localhost:8086");
+    socket.onopen = () => {
+      console.log('socket opened');
+    }
+    socket.onmessage = (e) => {
+      // const parsed = JSON.parse(e.data);
+      console.log('incoming message', e);
+    }
+
+    const client = new Client();
+
+    const btn = document.querySelector('#btn');
+    btn.addEventListener('click', () => {
+      console.log('click');
+      socket.send("ahoj");
+    });
+  </script>
+</body>
+</html>

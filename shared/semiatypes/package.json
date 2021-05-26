@@ -1,0 +1,19 @@
+{
+  "name": "semiatypes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "npx tsc --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "yup": "^0.32.9"
+  },
+  "devDependencies": {
+    "@types/mongodb": "^3.6.14"
+  }
+}
