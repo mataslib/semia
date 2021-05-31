@@ -1,8 +1,8 @@
 {
-  "name": "semia",
+  "name": "semiaserver",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "/dist/server.js",
   "dependencies": {
     "mongodb": "^3.6.6",
     "semiatypes": "file:../shared/semiatypes",
@@ -17,7 +17,7 @@
     "typescript": "^4.2.4"
   },
   "scripts": {
-    "dev": "tsc-watch  --watch --onCompilationComplete  \"node --experimental-specifier-resolution=node server.js\""
+    "dev": "tsc-watch  --watch --onCompilationComplete  \"node --experimental-specifier-resolution=node ./dist/server.js\""
   },
   "author": "Libor Matasek",
   "license": "ISC"

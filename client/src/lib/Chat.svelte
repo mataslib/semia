@@ -137,6 +137,7 @@
     flex: 1 1 0%;
     overflow: auto;
     width: 100%;
+    padding: 15px;
   }
 
   .msg-header {

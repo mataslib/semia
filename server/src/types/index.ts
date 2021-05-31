@@ -116,7 +116,7 @@ export interface RoomListReq
 {
 }
 export interface RoomListSuccessResponse extends SuccessResponse {
-  result: RoomUser[]
+  result: Room[]
 }
 export type RoomListResponse = RoomListSuccessResponse | ErrorResponse;
 export const roomListReqSchema = yup.object().shape({

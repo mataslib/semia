@@ -1,23 +1,17 @@
 <script lang="ts">
-  import { io } from "socket.io-client";
   import Login from "./lib/Login.svelte";
   import Room from "./lib/Pages/Room.svelte";
   import Index from "./lib/Pages/Index.svelte";
-  import Rooms from "./lib/RoomList.svelte";
-  import { Router, Link, Route, navigate } from "svelte-navigator";
-  import { anonymSocket, userSocket, isAuthenticated } from "./lib/store";
+  import { Router, Route, navigate } from "svelte-navigator";
+  import { isAuthenticated } from "./lib/store";
   import Register from "./lib/Register.svelte";
   import Modal from "./lib/Modal.svelte";
   import {logout as storeLogout} from "./lib/store";
   
-
   function logout() {
     storeLogout();
     navigate('/');
   }
-
-  // anonymousSocket.on("connect", () => {});
-  // anonymousSocket.on("connect_error", () => {});
 </script>
 
 <main>
@@ -80,8 +74,5 @@
     padding: 0;
     background-color: #2E3440;
     color: #D8DEE9;
-  }
-  main {
-    
   }
 </style>

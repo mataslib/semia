@@ -2,9 +2,8 @@
   import { getContext, createEventDispatcher, onDestroy } from "svelte";
   import type * as types from "semiatypes";
   import type { Socket } from "socket.io-client";
-  import { v4 as uuid } from "uuid";
   import MeetingMember from "./MeetingMember.svelte";
-  import { initPeerConnection } from "./webrtc";
+  import { initPeerConnection, PeerConnectionDecorator } from "./webrtc";
 
   export let mediaStream: MediaStream;
 
@@ -13,18 +12,29 @@
   localAudioTrack = mediaStream.getAudioTracks()[0];
   localVideoTrack = mediaStream.getVideoTracks()[0];
 
+  // whether scree sharing is active
   let isScreenSharing = false;
+  // whether stream contains local video
   let isVideo = localVideoTrack !== undefined;
+  // whether stream containt local audio
   let isAudio = localAudioTrack !== undefined;
+
+  $: localStreamHasTracks =
+    !!localVideoTrack || !!localAudioTrack || !!isScreenSharing;
 
   const roomSocket: Socket = getContext("roomSocket");
   const dispatch = createEventDispatcher();
 
-  let remoteStreams = [];
-  let peerConnections = {};
-  $: console.log("PEERCONNECTIONS CHANGE!", peerConnections);
+  let connections: Connections = {};
 
   async function joinMeeting() {
+    joinRoomMeeting();
+    sendWrtcOfferOnServerPrompt();
+    processIncomingWrtcSignals();
+  }
+  joinMeeting();
+
+  function joinRoomMeeting() {
     const joinMeetingMessage: types.RoomJoinMeetingMessage = {};
     roomSocket.emit(
       "room:joinMeeting",
@@ -33,109 +43,140 @@
         if ("error" in response) {
           dispatch("error", response.error.message);
         }
-        console.log("response ", response);
       }
     );
+  }
 
-    const configuration = {};
-    roomSocket.on("wrtc:send-offer", async (message) => {
-      console.log("send offer", message);
-
-      const peerConnectionId = uuid();
-      const signaler = {
-        send: (sendMessage) => {
-          console.log("emitsignal");
-          roomSocket.emit("wrtc:signal", {
-            ...sendMessage,
-            to: message.to,
-            peerConnectionId,
-          });
-        },
-      };
-      const onTrack = ({ track, streams }) => {
-        console.debug("TRACK!");
-        peerConnections[peerConnectionId].stream = streams[0];
-      };
-      const peerConnection = initPeerConnection({
-        signaler,
-        onTrack,
-        polite: false,
-      });
-      peerConnections[peerConnectionId] = {
-        peerConnection,
-      };
-      if (localAudioTrack) {
-        peerConnections[peerConnectionId].audioSender = peerConnection.addTrack(
-          localAudioTrack,
-          mediaStream
-        );
-      }
-      if (localVideoTrack) {
-        peerConnections[peerConnectionId].videoSender = peerConnection.addTrack(
-          localVideoTrack,
-          mediaStream
-        );
-      }
-      // aby se navazalo spojeni i kdyz neni zadny media track k poslani
-      peerConnection.pc.createDataChannel("dummy");
-    });
-
-    // Accept Offers
-    roomSocket.on("wrtc:signal", async (message) => {
-      console.log("handleSignal", message);
-
-      // bud poslu na vsechny peer connection
-      // a oni si ifem rozhodnou, zda je pro ne (dle peerConnectionId)
-      const { from, peerConnectionId } = message;
-
-      let peerConnection = peerConnections[peerConnectionId]?.peerConnection;
-      if (!peerConnection) {
-        const onTrack = ({ track, streams }) => {
-          console.debug("TRACK!");
-          peerConnections[peerConnectionId].stream = streams[0];
-        };
-        const signaler = {
-          send: (sendMessage) => {
-            console.log("emitsignal");
-            roomSocket.emit("wrtc:signal", {
-              ...sendMessage,
-              to: from,
-              peerConnectionId,
-            });
-          },
-        };
-        peerConnection = initPeerConnection({
-          signaler,
-          onTrack,
-          polite: true,
+  // On new member joins room meeting
+  // Server prompts me to make peer connection with him
+  function sendWrtcOfferOnServerPrompt() {
+    roomSocket.on(
+      "wrtc:send-offer",
+      async (message: types.WrtcSendOfferMessage) => {
+        const { to, connectionId } = message;
+        const connection = createConnection({
+          polite: false,
+          to,
+          connectionId,
         });
-        peerConnections[peerConnectionId] = {
-          peerConnection,
-        };
-        if (localAudioTrack) {
-          peerConnections[peerConnectionId].audioSender =
-            peerConnection.addTrack(localAudioTrack, mediaStream);
-        }
-        if (localVideoTrack) {
-          peerConnections[peerConnectionId].videoSender =
-            peerConnection.addTrack(localVideoTrack, mediaStream);
-        }
+        // force peer connection to be established
+        // even if there isn't any local track!
+        // Such user wouldn't see and hear other peer,
+        // because peer connection starts establishing when addTrack is called,
+        // and we don't have any therefore connection wouldn't be established at all
+        // we use hack here and create data channel, which also starts establishing ;-)
+        connection.peerConnection.wrapped.createDataChannel("dummy");
+      }
+    );
+  }
+
+  function processIncomingWrtcSignals() {
+    roomSocket.on("wrtc:signal", async (message) => {
+      const { from, connectionId } = message;
+
+      let peerConnection = connections[connectionId]?.peerConnection;
+      // When i'm an answerer, I don't have PeerConnection object yet
+      if (!peerConnection) {
+        const connection = createConnection({
+          polite: true,
+          to: from,
+          connectionId,
+        });
+        peerConnection = connection.peerConnection;
       }
 
-      peerConnection.handleMessage(message);
+      peerConnection.handleSignalMessage(message);
     });
   }
-  joinMeeting();
+
+  function createConnection(params: {
+    polite: boolean;
+    connectionId: ConnectionId;
+    to: SocketId;
+  }): Connection {
+    const { polite, connectionId, to } = params;
+
+    const signaler = createSignaler({ to, connectionId });
+    const peerConnection = initPeerConnection({
+      signaler,
+      polite,
+    });
+    let connection: Connection = {
+      peerConnection,
+      connectionId,
+    };
+    const onStateChange = createOnStateChangeHandler({ connection });
+    const onTrack = createOnTrackHandler({ connection });
+    peerConnection.wrapped.addEventListener("track", onTrack);
+    peerConnection.wrapped.addEventListener(
+      "connectionstatechange",
+      onStateChange
+    );
+
+    if (localAudioTrack) {
+      connection.audioSender = peerConnection.wrapped.addTrack(
+        localAudioTrack,
+        mediaStream
+      );
+    }
+    if (localVideoTrack) {
+      connection.videoSender = peerConnection.wrapped.addTrack(
+        localVideoTrack,
+        mediaStream
+      );
+    }
+
+    connections[connectionId] = connection;
+    return connection;
+  }
+
+  // Creates function that is used by PeerConnection to send signals
+  function createSignaler(params: {
+    to: SocketId;
+    connectionId: ConnectionId;
+  }) {
+    const { to, connectionId } = params;
+    return {
+      send: (sendMessage) => {
+        roomSocket.emit("wrtc:signal", {
+          ...sendMessage,
+          to,
+          connectionId,
+        });
+      },
+    };
+  }
+
+  // Creates function that is triggered on remote track added
+  function createOnTrackHandler(params: { connection: Connection }) {
+    const { connection } = params;
+    return ({ streams }) => {
+      connections[connection.connectionId].stream = streams[0];
+    };
+  }
+
+  function createOnStateChangeHandler(params: { connection: Connection }) {
+    const { connection } = params;
+    return (event) => {;
+      // destroy peer connection object on connection end
+      if (connection.peerConnection.wrapped.connectionState === "failed") {
+        delete connections[connection.connectionId];
+        connections = connections;
+      }
+    };
+  }
 
   onDestroy(() => {
-    console.debug("destroy in progress");
+    // kill streams, peer connections, cleanup
+    // mandatory to be able to reinitiate connection on rerender (rejoin)
     const leaveMeetingMessage: types.RoomLeaveMeetingMessage = {};
     roomSocket.emit("room:leaveMeeting", leaveMeetingMessage);
-    Object.entries(peerConnections).forEach(([key, value]) => {
-      value.peerConnection.close();
-      value.peerConnection = null;
+    mediaStream.getTracks().forEach(track => track.stop());
+    Object.entries(connections).forEach(([key, value]) => {
+      value.peerConnection.wrapped.close();
+      console.log("closed peer connection");
     });
-    peerConnections = {};
+    connections = {};
 
     roomSocket.off("wrtc:send-offer");
     roomSocket.off("wrtc:signal");
@@ -180,9 +221,11 @@
       mediaStream.getVideoTracks().forEach((track) => {
         mediaStream.removeTrack(track);
       });
+      console.log("addtrack");
+
       mediaStream.addTrack(screenVidTrack);
 
-      Object.entries(peerConnections).forEach(([conId, value]) => {
+      Object.entries(connections).forEach(([conId, value]) => {
         if (value.videoSender) {
           // Is already some video track streaming
           console.log("VideoSender");
@@ -190,7 +233,7 @@
         } else {
           // No video track yet
           console.log("Not videoSender");
-          value.videoSender = value.peerConnection.addTrack(
+          value.videoSender = value.peerConnection.wrapped.addTrack(
             screenVidTrack,
             mediaStream
           );
@@ -198,12 +241,12 @@
       });
       isScreenSharing = true;
     } catch (err) {
-      // screen pick cancelled
+      // eg. screen pick in browser promp cancelled with storno button
+      console.error(err);
     }
   }
 
   async function stopScreenShare() {
-    // todo if video track remove, add?
     mediaStream.getVideoTracks().forEach((track) => {
       mediaStream.removeTrack(track);
     });
@@ -211,7 +254,7 @@
       mediaStream.addTrack(localVideoTrack);
     }
 
-    Object.entries(peerConnections).forEach(([conId, value]) => {
+    Object.entries(connections).forEach(([conId, value]) => {
       if (value.videoSender) {
         // Is already some video track streaming
         console.log("VideoSender");
@@ -219,7 +262,7 @@
       } else {
         // No video track yet
         console.log("Not videoSender");
-        value.videoSender = value.peerConnection.addTrack(
+        value.videoSender = value.peerConnection.wrapped.addTrack(
           localVideoTrack,
           mediaStream
         );
@@ -227,9 +270,26 @@
     });
     isScreenSharing = false;
   }
+
+  interface Connection {
+    connectionId: ConnectionId;
+    peerConnection: PeerConnectionDecorator;
+    stream?: MediaStream;
+    // objects returned upon track added to RTCPeerConnection
+    // - allowing replaceTrack (eg. with screen share)
+    videoSender?: RTCRtpSender;
+    audioSender?: RTCRtpSender;
+  }
+  interface Connections {
+    [connectionId: string]: Connection;
+  }
+  // socketio socket id
+  type SocketId = string;
+  // id identifying single peer connection
+  type ConnectionId = string;
 </script>
 
-<MeetingMember stream={mediaStream} />
+<MeetingMember streamHasTracks={localStreamHasTracks} stream={mediaStream} />
 <button class="screenshare" on:click={toggleShareScreen}>
   {isScreenSharing ? `Stop sharing` : `Share screen`}
 </button>
@@ -244,9 +304,9 @@
   </button>
 {/if}
 
-{#each Object.entries(peerConnections) as [connectionId, peerConnection] (connectionId)}
-  {#if peerConnection.stream}
-    <MeetingMember stream={peerConnection.stream} />
+{#each Object.entries(connections) as [connectionId, connection] (connectionId)}
+  {#if connection.stream}
+    <MeetingMember stream={connection.stream} />
   {:else}
     Member not streaming anything
   {/if}

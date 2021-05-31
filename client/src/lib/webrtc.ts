@@ -1,56 +1,20 @@
-// pattern from
+// "Perfect negotiation" pattern from
 // https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation
-// perfect negotiation prividing ability to
-// crud streams (renegotiation)
+// prividing ability to crud stream tracks (renegotiation)
 
 const config = {
   // iceServers: [{ urls: "stun:stun.mystunserver.tld" }]
 };
 
-interface Signaler {
-  send: (message: any) => void,
-
-}
-
-class MyPeerConnection {
+export class PeerConnectionDecorator {
 
   private onmessage: Function;
-  public pc: RTCPeerConnection;
+  public wrapped: RTCPeerConnection;
 
-  constructor( params ) {
-    const { signaler, onTrack, polite } = params;
-    this.pc = new RTCPeerConnection(config);
-    const pc = this.pc;
-
-    
-
-    // stream z venku
-    // async function start() {
-    //   try {
-    //     const stream = await navigator.mediaDevices.getUserMedia(constraints);
-
-    //     for (const track of stream.getTracks()) {
-    //       pc.addTrack(track, stream);
-    //     }
-    //     selfVideo.srcObject = stream;
-    //   } catch (err) {
-    //     console.error(err);
-    //   }
-    // }
-
-    // handler z venku
-    pc.ontrack = onTrack;
-    // pc.ontrack = ({ track, streams }) => {
-    //   // We add an unmute event handler to the track, 
-    //   // because the track will become unmuted
-    //   // once it starts receiving packets.
-    //   track.onunmute = () => {
-    //     if (remoteVideo.srcObject) {
-    //       return;
-    //     }
-    //     remoteVideo.srcObject = streams[0];
-    //   };
-    // };
+  constructor( params: Params ) {
+    const { signaler, polite } = params;
+    this.wrapped = new RTCPeerConnection(config);
+    const pc = this.wrapped;
 
     let makingOffer = false;
     pc.onnegotiationneeded = async () => {
@@ -67,7 +31,6 @@ class MyPeerConnection {
     };
 
     pc.onicecandidate = ({ candidate }) => {
-      console.log('ice candidate send');
       signaler.send({ candidate })
     };
     pc.oniceconnectionstatechange = () => {
@@ -76,22 +39,13 @@ class MyPeerConnection {
       }
     };
 
-    pc.addEventListener("connectionstatechange", (event) => {
-      console.log(`connection state change`);
-      if (pc.connectionState === "connected") {
-        console.log("Connected! Hooray. :-)");
-      } else if (pc.connectionState === "closed") {
-        // delete peerConnections[connectionId];
-      }
-    });
-
     let ignoreOffer = false;
-    this.onmessage = async ({ description, candidate }) => {
+    this.onmessage = async (signalMessage) => {
+      const { description, candidate } = signalMessage;
+
       try {
         // offer nebo answer
         if (description) {
-          console.log('description received');
-
           const offerCollision = (description.type == "offer") &&
             (makingOffer || pc.signalingState != "stable");
 
@@ -109,9 +63,7 @@ class MyPeerConnection {
           }
         }
         // ice candidate
-        else if (candidate) {
-          console.log('ice candidate received');
-          
+        else if (candidate) {          
           try {
             await pc.addIceCandidate(candidate);
           } catch (err) {
@@ -126,38 +78,22 @@ class MyPeerConnection {
     }
   }
 
-  public handleMessage(message) {
+  public handleSignalMessage(message) {
     this.onmessage(message);
-  }
-
-  public close() {
-    this.pc.close();
-  }
-
-  // public start(stream: MediaStream) {
-  //   try {
-  //     for (const track of stream.getTracks()) {
-  //       console.log('addtrack');
-        
-  //       this.pc.addTrack(track, stream);
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // }
-
-  public addTrack(track: MediaStreamTrack, stream: MediaStream): RTCRtpSender {
-    try {
-      console.log('add track');
-      return this.pc.addTrack(track, stream)
-    } catch (err) {
-      console.error(err);
-    }
   }
 }
 
-export function initPeerConnection({signaler, onTrack, polite}) {
-  const pc = new MyPeerConnection({signaler, onTrack, polite});
+export function initPeerConnection(params: Params) {
+  const pc = new PeerConnectionDecorator(params);
   return pc;
 }
 
+
+interface Signaler {
+  send: (message: any) => void,
+}
+
+interface Params {
+  signaler: Signaler,
+  polite: boolean,
+}

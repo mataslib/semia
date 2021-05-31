@@ -8,7 +8,6 @@
   import Modal from "../Modal.svelte";
   import JoinRoomMeeting from "../JoinRoomMeeting.svelte";
   import RoomMeeting from "../RoomMeeting.svelte";
-  import RoomMeeting2 from "../RoomMeeting2.svelte";
   import RoomMembers from "../RoomMembers.svelte";
 
   const params = useParams();

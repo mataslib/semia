@@ -220,3 +220,7 @@ export interface RoomUser {
     name: string;
     role: RoomUserRole;
 }
+export interface WrtcSendOfferMessage {
+    to: string;
+    connectionId: string;
+}
