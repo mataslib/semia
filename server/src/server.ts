@@ -38,19 +38,5 @@ initUserSocket({ io });
 // socket with authneticated user & member of room
 initRoomSocket({ io });
 
-/**
- * Strips prefix from url pathname
- *
- * @param pathname 
- * @param prefix 
- * @returns 
- */
-function pathnameWithoutPrefix(pathname: string, prefix: string) {
-  if (!pathname.startsWith(prefix)) {
-    throw "Pathname doesn't start with prefix that you want to remove.";
-  }
-  return pathname.substr(prefix.length);
-}
-
 httpServer.listen(port);
 console.log(`Server listening on port ${port}. Go to http://localhost:${port}.`);
