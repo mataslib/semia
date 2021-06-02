@@ -1,24 +1,25 @@
 import { writable, derived } from "svelte/store";
 import { io } from "socket.io-client";
+import { server } from "./globals";
 
 
 
 export const anonymSocket = writable(
-  io("ws://localhost:8086", {
+  io(`ws://${server}`, {
     transports: ["websocket"],
   }
 ));
 
 function createTokenStore() {
   const { subscribe, set } = writable(null, (set) => {
-    const token = window.sessionStorage.getItem('token');
-    set(window.sessionStorage.getItem('token'));
+    const token = JSON.parse(window.sessionStorage.getItem('token'));
+    set(token);
   });
 
   return {
     subscribe,
     set: (value) => {
-      window.sessionStorage.setItem('token', value);
+      window.sessionStorage.setItem('token', JSON.stringify(value));
       set(value);
     }
   }
@@ -27,9 +28,9 @@ function createTokenStore() {
 export const token = createTokenStore();
 export const isAuthenticated = writable(false);
 export const userSocket = writable(null);
-token.subscribe((token) => {
+token.subscribe((token) => {  
   if (token) {
-    const socket = io("ws://localhost:8086/user", {
+    const socket = io(`ws://${server}/user`, {
       transports: ["websocket"],
       auth: {
         token: token

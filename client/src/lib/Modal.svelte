@@ -28,7 +28,7 @@
     width: 100%;
     height: 100%;
     display: flex;
-    padding: 20vh 0;
+    padding: 15vh 0;
     align-items: flex-start;
   }
 

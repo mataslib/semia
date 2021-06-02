@@ -1,7 +1,7 @@
 <script lang="ts">
   import { userSocket } from "./store";
   import { Link } from "svelte-navigator";
-  import type * as types from "semiatypes";
+  import type * as types from "semiaserver/dist/types";
 
   let rooms: types.Room[] = [];
 

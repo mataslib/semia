@@ -4,7 +4,7 @@
 </script>
 
 <div class="layout">
-  <h1>Místnosti</h1>
+  <h1>Rooms</h1>
   <RoomList />
   <NewRoom />
 </div>

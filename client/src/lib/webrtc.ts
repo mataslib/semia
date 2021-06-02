@@ -33,11 +33,11 @@ export class PeerConnectionDecorator {
     pc.onicecandidate = ({ candidate }) => {
       signaler.send({ candidate })
     };
-    pc.oniceconnectionstatechange = () => {
-      if (pc.iceConnectionState === "failed") {
-        pc.restartIce();
-      }
-    };
+    // pc.oniceconnectionstatechange = () => {
+    //   if (pc.iceConnectionState === "failed") {
+    //     pc.restartIce();
+    //   }
+    // };
 
     let ignoreOffer = false;
     this.onmessage = async (signalMessage) => {

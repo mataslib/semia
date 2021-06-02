@@ -17,7 +17,7 @@
     options = [
       emptyOption,
       ...$store.map((device) => ({
-        label: device.label,
+        label: device.label ? device.label : device.deviceId,
         value: device.deviceId,
       })),
     ];

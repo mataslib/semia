@@ -3,6 +3,7 @@
   import SelectMediaDevice from "./SelectMediaDevice.svelte";
   import Field from "./Field.svelte";
   import PrimaryButton from "./PrimaryButton.svelte";
+import { triggerPermissionPrompt } from "./media";
 
   const dispatch = createEventDispatcher();
   let mediaStream: MediaStream = new MediaStream();
@@ -11,9 +12,13 @@
   let audioInId: string;
   let videoInId: string;
   let loading = false;
+  let waitingPermissions = true;
 
   $: updateStream(audioInId, videoInId);
   $: updatePreviewElement(previewElement, mediaStream);
+
+  triggerPermissionPrompt().finally(() => waitingPermissions = false);
+
 
   function updatePreviewElement(
     previewElement: HTMLMediaElement,
@@ -66,41 +71,52 @@
 </script>
 
 <div class="joinroom">
-  <Field
-    label="Audio In"
-    input={{
-      component: {
-        component: SelectMediaDevice,
-        props: { kind: "audioinput" },
-        listeners: [["input", (e) => (audioInId = e.target.value)]],
-      },
-    }}
-  />
-  <Field
-    label="Camera"
-    input={{
-      component: {
-        component: SelectMediaDevice,
-        props: { kind: "videoinput" },
-        listeners: [["input", (e) => (videoInId = e.target.value)]],
-      },
-    }}
-  />
-
-  <div class="preview">
-    {#if !isEmptyMediaStream}
-      {#if videoInId}
-        <video bind:this={previewElement} autoplay playsinline controls />
-      {:else}
-        <audio bind:this={previewElement} autoplay playsinline controls />
-      {/if}
-    {/if}
-  </div>
-
-  {#if !loading}
-    <PrimaryButton on:click={joinAction}>Připojit</PrimaryButton>
+  {#if waitingPermissions}
+    Checking media devices permissions
   {:else}
-    loading device...
+    <p>
+      There are device (camera, microphone) identificators showed in select boxes
+      ("random" mixed characters and numbers) until permanent device permission is
+      given.<br /><br /> After you permanently allow device, you will see device labels
+      (names) next time, or after browser refresh.
+    </p>
+
+    <Field
+      label="Audio In"
+      input={{
+        component: {
+          component: SelectMediaDevice,
+          props: { kind: "audioinput" },
+          listeners: [["input", (e) => (audioInId = e.target.value)]],
+        },
+      }}
+    />
+    <Field
+      label="Camera"
+      input={{
+        component: {
+          component: SelectMediaDevice,
+          props: { kind: "videoinput" },
+          listeners: [["input", (e) => (videoInId = e.target.value)]],
+        },
+      }}
+    />
+
+    <div class="preview">
+      {#if !isEmptyMediaStream}
+        {#if videoInId}
+          <video bind:this={previewElement} autoplay playsinline controls />
+        {:else}
+          <audio bind:this={previewElement} autoplay playsinline controls />
+        {/if}
+      {/if}
+    </div>
+
+    {#if !loading}
+      <PrimaryButton on:click={joinAction}>Join</PrimaryButton>
+    {:else}
+      loading device...
+    {/if}
   {/if}
 </div>
 

@@ -1,18 +1,19 @@
 <script lang="ts">
   import { userSocket } from "./store";
-  import type * as types from "semiatypes";
-  import * as typesOther from "semiatypes";
+  import type * as types from "semiaserver/dist/types";
+  import * as typesOther from "semiaserver/dist/types";
   import { Sveltik, Form } from "sveltik";
   import PrimaryButton from "./PrimaryButton.svelte";
   import { schemaValidate } from "./schemaValidate";
   import Field from "./Field.svelte";
+  import TimedShow from "./TimedShow.svelte";
 
   const initialValues = {
     name: "",
   };
   const validate = schemaValidate(typesOther.roomCreateReqSchema);
 
-  let status: string = '';
+  let status: string = "";
   function createRoom(values) {
     const request: types.RoomCreateReq = {
       name: values["name"],
@@ -26,7 +27,7 @@
         }
 
         status = "Ok. Created.";
-        setTimeout(() => status = '', 3000);
+        setTimeout(() => (status = ""), 3000);
       }
     );
   }
@@ -43,11 +44,11 @@
       touched={props.touched["name"]}
       submitted={props.submitAttemptCount > 0}
     />
-    <PrimaryButton>Vytvořit místnost</PrimaryButton>
-    <br/>
-    <br/>
+    <PrimaryButton>Create Room</PrimaryButton>
+    <br />
+    <br />
     <div>
-      {status}
+      <TimedShow bind:value={status} />
     </div>
   </Form>
 </Sveltik>

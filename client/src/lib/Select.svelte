@@ -10,8 +10,6 @@
       return option;
     }
   })
-
-
 </script>
 
 <select {...$$restProps} on:input on:blur>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Socket } from "socket.io-client";
-  import type * as types from "semiatypes";
+  import type * as types from "semiaserver/dist/types";
   import { getContext } from "svelte";
   import InviteRoomMember from "./InviteRoomMember.svelte";
 

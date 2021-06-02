@@ -164,7 +164,7 @@ export interface User {
 }
 
 export interface Token {
-  token: mongodb.ObjectID
+  token: string
 }
 
 export interface Message {

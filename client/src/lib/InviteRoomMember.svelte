@@ -2,11 +2,12 @@
   import Field from "./Field.svelte";
   import { Sveltik, Form } from "sveltik";
   import * as yup from "yup";
-  import type * as types from "semiatypes";
-  import * as typesOther from "semiatypes";
+  import type * as types from "semiaserver/dist/types";
+  import * as typesOther from "semiaserver/dist/types";
   import { schemaValidate } from "./schemaValidate";
   import type { Socket } from "socket.io-client";
   import { getContext } from "svelte";
+import TimedShow from "./TimedShow.svelte";
 
   const roomSocket: Socket = getContext("roomSocket");
 
@@ -52,6 +53,6 @@
       submitted={props.submitAttemptCount > 0}
     />
     <button>Invite</button>
-    {status}
+    <TimedShow value={status}/>
   </Form>
 </Sveltik>

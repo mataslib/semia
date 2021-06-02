@@ -1,23 +1,21 @@
 {
-  "name": "client",
+  "name": "semiaclient",
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "serve": "vite preview"
+    "build": "vite build"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.10",
+    "semiaserver": "file:../server",
     "svelte": "^3.37.0",
     "svelte-preprocess": "^4.7.2",
     "typescript": "^4.2.4",
     "vite": "^2.3.2"
   },
   "dependencies": {
-    "semiatypes": "file:../shared/semiatypes",
-    "socket.io-client": "^4.1.1",
+    "socket.io-client": "^4.1.2",
     "svelte-navigator": "^3.1.5",
-    "svelti": "0.0.4",
     "sveltik": "^0.1.16",
     "yup": "^0.32.9"
   }

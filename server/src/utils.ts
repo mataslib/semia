@@ -23,14 +23,3 @@ export const withErrorCatch = async (sendResponse: any = emptyFn, fn: any = empt
     sendResponse(errorResponse(error));
   }
 }
-
-
-// function isYupValidationError(error: any): error is yup.ValidationError {
-//   const isYupValidationError = typeof error === "object"
-//     && (
-//       error instanceof yup.ValidationError
-//       || error.constructor.name === "ValidationError"
-//     )
-
-//   return isYupValidationError;
-// }

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import {v4 as uuid} from 'uuid';
-  import Chat from './Chat.svelte';
-import DynamicComponent from './DynamicComponent.svelte';
-  import Input from './Input.svelte';
+  import { v4 as uuid } from "uuid";
+  import Chat from "./Chat.svelte";
+  import DynamicComponent from "./DynamicComponent.svelte";
+  import Input from "./Input.svelte";
   export let label;
   export let error;
   export let touched = false;
@@ -11,16 +11,15 @@ import DynamicComponent from './DynamicComponent.svelte';
 
   interface Input {
     component?: {
-      component: object, 
-      props: object,
-      listeners: [string, Function][],
-    }
+      component: object;
+      props: object;
+      listeners: [string, Function][];
+    };
   }
 
   export let input: Input = {};
 
-
-  let type = $$restProps['type'];
+  let type = $$restProps["type"];
 
   id = id ?? uuid();
 </script>
@@ -29,11 +28,11 @@ import DynamicComponent from './DynamicComponent.svelte';
   {#if label}
     <label for={id}>
       {label}
-    </label><br/>
+    </label><br />
   {/if}
 
   {#if type === "select"}
-    <Select {id} {...$$restProps} on:input on:blur/>
+    <Select {id} {...$$restProps} on:input on:blur />
   {:else if input.component}
     <DynamicComponent
       component={input.component.component}
@@ -41,9 +40,9 @@ import DynamicComponent from './DynamicComponent.svelte';
       listeners={input.component?.listeners ?? []}
     />
   {:else}
-    <Input {id} {...$$restProps} on:input on:blur/>
+    <Input {id} {...$$restProps} on:input on:blur />
   {/if}
-  
+
   {#if error && (submitted || touched)}
     <div>
       {error}

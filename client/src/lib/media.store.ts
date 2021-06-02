@@ -15,9 +15,9 @@ async function createDeviceStore(kind: MediaDeviceKind): Promise<DeviceStore> {
   const devices = await getDevices();
   const store = writable<MediaDeviceInfo[]>(devices);
 
-  navigator.mediaDevices.ondevicechange = e => {
+  navigator.mediaDevices.addEventListener('devicechange', e => {
     updateDevices(store.set);
-  };
+  });
 
   return store;
 }

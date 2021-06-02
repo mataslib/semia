@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getContext, createEventDispatcher, onDestroy } from "svelte";
-  import type * as types from "semiatypes";
+  import type * as types from "semiaserver/dist/types";
   import type { Socket } from "socket.io-client";
   import MeetingMember from "./MeetingMember.svelte";
   import { initPeerConnection, PeerConnectionDecorator } from "./webrtc";
@@ -112,6 +112,10 @@
       "connectionstatechange",
       onStateChange
     );
+    peerConnection.wrapped.addEventListener(
+      "iceconnectionstatechange",
+      onStateChange
+    );
 
     if (localAudioTrack) {
       connection.audioSender = peerConnection.wrapped.addTrack(
@@ -155,11 +159,21 @@
     };
   }
 
+  // Handles client failed connection (removes him from meeting UI)
   function createOnStateChangeHandler(params: { connection: Connection }) {
     const { connection } = params;
     return (event) => {;
+      console.log(
+        'state change',
+        connection.peerConnection.wrapped.connectionState,
+        connection.peerConnection.wrapped.iceConnectionState,
+        connection.peerConnection.wrapped.iceGatheringState
+        );
       // destroy peer connection object on connection end
-      if (connection.peerConnection.wrapped.connectionState === "failed") {
+      if (
+        connection.peerConnection.wrapped.connectionState === "failed" // chrome
+        || connection.peerConnection.wrapped.iceConnectionState === "failed" // firefox
+      ) {
         delete connections[connection.connectionId];
         connections = connections;
       }
@@ -248,6 +262,7 @@
 
   async function stopScreenShare() {
     mediaStream.getVideoTracks().forEach((track) => {
+      track.stop();
       mediaStream.removeTrack(track);
     });
     if (localVideoTrack) {
@@ -308,6 +323,8 @@
   {#if connection.stream}
     <MeetingMember stream={connection.stream} />
   {:else}
-    Member not streaming anything
+    <div>
+      Not streaming member. 
+    </div>
   {/if}
 {/each}

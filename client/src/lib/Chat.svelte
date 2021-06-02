@@ -1,7 +1,8 @@
 <script lang="ts">
   import { getContext, tick, onMount } from "svelte";
-  import type * as types from "semiatypes";
+  import type * as types from "semiaserver/dist/types";
   import type { Socket } from "socket.io-client";
+import { server } from "./globals";
 
   const roomSocket: Socket = getContext('roomSocket');
 
@@ -84,7 +85,7 @@
           {#if message.file}
             <a
               target="_blank"
-              href={`http://localhost:8086/${message.file.path}`}
+              href={`http://${server}/${message.file.path}`}
               >{message.file.name}</a
             >
           {/if}
@@ -99,7 +100,7 @@
   <form class="chatform" bind:this={formEl} on:submit|preventDefault={sendMessage}>
     <textarea bind:this={messageEl} />
     <input bind:this={fileEl} type="file" />
-    <button>Poslat</button>
+    <button>Send</button>
     <div>{createMessageError}</div>
   </form>
 </div>

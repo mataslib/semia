@@ -3,9 +3,10 @@
   import { anonymSocket, token } from "./store";
   import { Sveltik, Form } from "sveltik";
   import * as yup from "yup";
-  import type * as types from "semiatypes";
+  import type * as types from "semiaserver/dist/types";
   import PrimaryButton from "./PrimaryButton.svelte";
-  import {schemaValidate} from "./schemaValidate";
+  import { schemaValidate } from "./schemaValidate";
+  import TimedShow from "./TimedShow.svelte";
 
   const initialValues = {
     email: "",
@@ -55,7 +56,7 @@
       submitted={props.submitAttemptCount > 0}
     />
     <Field
-      label="Heslo"
+      label="Password"
       type="password"
       name="password"
       on:input={props.handleInput}
@@ -66,7 +67,7 @@
       submitted={props.submitAttemptCount > 0}
     />
 
-    <PrimaryButton>Přihlásit</PrimaryButton>
-    {status}
+    <PrimaryButton>Login</PrimaryButton>
+    <TimedShow bind:value={status} />
   </Form>
 </Sveltik>

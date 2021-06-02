@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {  token } from "../store";
+  import { token } from "../store";
   import { setContext } from "svelte";
   import { useParams } from "svelte-navigator";
   import Chat from "../Chat.svelte";
@@ -9,6 +9,7 @@
   import JoinRoomMeeting from "../JoinRoomMeeting.svelte";
   import RoomMeeting from "../RoomMeeting.svelte";
   import RoomMembers from "../RoomMembers.svelte";
+  import { server } from "../globals";
 
   const params = useParams();
   const { id: roomId } = $params;
@@ -16,18 +17,24 @@
   let showJoinMeeting = false;
   let showMembers = false;
   let meetingInProgress = false;
+  let socketState: "connecting" | "connected" | "error" | "timeout" =
+    "connecting";
+  let error: string;
 
-
-
-  const roomSocket = io(`ws://localhost:8086/room-${roomId}`, {
+  const roomSocket = io(`ws://${server}/room-${roomId}`, {
+    timeout: 5000,
     transports: ["websocket"],
     auth: {
       token: $token,
     },
   });
   setContext("roomSocket", roomSocket);
-
-  
+  roomSocket.on("connect", () => (socketState = "connected"));
+  roomSocket.on("connect_error", (err) => {
+    socketState = "error";
+    error = err.message;
+  });
+  roomSocket.on("connect_timeout ", () => (socketState = "timeout"));
 
   let mediaStream: MediaStream;
   function joinMeeting(tmpMediaStream) {
@@ -38,7 +45,7 @@
 
   function leaveMeeting() {
     meetingInProgress = false;
-    mediaStream.getTracks().forEach(track => track.stop());
+    mediaStream.getTracks().forEach((track) => track.stop());
     mediaStream = undefined;
   }
 
@@ -46,11 +53,11 @@
     meetingInProgress = false;
     alert(`Error: ${e.detail}`);
   }
-  
+
   function toggleShowJoin() {
     showJoinMeeting = !showJoinMeeting;
   }
- 
+
   function toggleShowMembers() {
     showMembers = !showMembers;
   }
@@ -58,47 +65,49 @@
   $: showModal = !meetingInProgress && showJoinMeeting;
 </script>
 
-
-
-<div class="actions">
-  {#if !meetingInProgress}
-      <PrimaryButton on:click={toggleShowJoin}>Připojit ke schůzce</PrimaryButton>
-  {:else}
-      <PrimaryButton on:click={leaveMeeting}>Odpojit</PrimaryButton>
-  {/if}
-  &nbsp;<a href="" on:click|preventDefault={toggleShowMembers}>členové</a>
-</div>
-
-
-<div class="layout" class:layout--meeting={meetingInProgress}>
-  {#if meetingInProgress}
-    <div class="meeting">
-      <RoomMeeting {mediaStream} on:error={meetingError}/>
-    </div>
-  {/if}
-  <div class="chatcontainer">
-    <Chat />
+{#if socketState === "connecting"}
+  Connecting...
+{:else if socketState === "connected"}
+  <div class="actions">
+    {#if !meetingInProgress}
+      <PrimaryButton on:click={toggleShowJoin}>Join Meeting</PrimaryButton>
+    {:else}
+      <PrimaryButton on:click={leaveMeeting}>Leave</PrimaryButton>
+    {/if}
+    &nbsp;<a href="" on:click|preventDefault={toggleShowMembers}>Members</a>
   </div>
-</div>
 
-{#if showModal}
-  <Modal isOpen={true}>
-    <div class="modalcontent">
-      <JoinRoomMeeting
-        on:joinAction={e => joinMeeting(e.detail)}
-      />
+  <div class="layout" class:layout--meeting={meetingInProgress}>
+    {#if meetingInProgress}
+      <div class="meeting">
+        <RoomMeeting {mediaStream} on:error={meetingError} />
+      </div>
+    {/if}
+    <div class="chatcontainer">
+      <Chat />
     </div>
-  </Modal>
-{/if}
+  </div>
 
-{#if showMembers}
-  <Modal isOpen={true}>
-    <div class="modalcontent">
-      <RoomMembers/>
-    </div>
-  </Modal>
-{/if}
+  {#if showModal}
+    <Modal isOpen={true}>
+      <div class="modalcontent">
+        <JoinRoomMeeting on:joinAction={(e) => joinMeeting(e.detail)} />
+      </div>
+    </Modal>
+  {/if}
 
+  {#if showMembers}
+    <Modal isOpen={true}>
+      <div class="modalcontent">
+        <RoomMembers />
+      </div>
+    </Modal>
+  {/if}
+{:else if socketState === "timeout"}
+  Connecting timeout.
+{:else if socketState === "error"}
+  Error. ({error})
+{/if}
 
 <style>
   .meeting :global(video) {
@@ -112,8 +121,7 @@
   .layout {
     display: grid;
     height: 100vh;
-    grid-template-areas:
-      "chat";
+    grid-template-areas: "chat";
     grid-template-rows: minmax(360px, auto);
   }
   .layout--meeting {

@@ -3,8 +3,8 @@
 import { Server } from "socket.io";
 import { emptyFn, withErrorCatch } from "../utils";
 import * as types from "../types";
-import mongodb from 'mongodb'
 import { userCollection } from "../collection/userCollection";
+import { generateToken } from "../accessToken";
 
 export function initSocket(params: {io: Server}) {
   const { io } = params;
@@ -24,7 +24,7 @@ export function initSocket(params: {io: Server}) {
           throw `Invalid password.`;
         }
 
-        const token = new mongodb.ObjectID();
+        const token = generateToken();
         let result = await userCollection.updateOne(user, {
           $push: {
             tokens: {
@@ -44,6 +44,12 @@ export function initSocket(params: {io: Server}) {
     socket.on('user:register', async (message, sendResponse = emptyFn) => {
       withErrorCatch(sendResponse, async () => {
         const userRegisterReq = types.userRegisterReqSchema.validateSync(message);
+
+        let existingUser = await userCollection.findOne({ email: userRegisterReq.email });
+        if (existingUser) {
+          throw `This email address already exists.`;
+        }
+  
         const user: types.User = {
           email: userRegisterReq.email,
           password: userRegisterReq.password,

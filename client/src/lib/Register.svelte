@@ -1,13 +1,15 @@
 <script lang="ts">
   import Field from "./Field.svelte";
   import { anonymSocket } from "./store";
-  import { userRegisterReqSchema } from "semiatypes";
-  import type * as types from "semiatypes";
+  import { userRegisterReqSchema } from "semiaserver/dist/types";
+  import type * as types from "semiaserver/dist/types";
   import * as yup from "yup";
   import PrimaryButton from "./PrimaryButton.svelte";
   import { schemaValidate } from "./schemaValidate";
   import { Sveltik, Form } from "sveltik";
+  import TimedShow from "./TimedShow.svelte";
 
+  let status: string = "";
   const initialValues = {
     email: "",
     password: "",
@@ -34,11 +36,12 @@
       "user:register",
       message,
       (response: types.UserRegisterResponse) => {
+        console.log(response);
         if ("error" in response) {
           status = response.error.message;
+        } else {
+          status = "Ok. Registered.";
         }
-
-        status = "Ok. Registered.";
       }
     );
   }
@@ -58,7 +61,7 @@
       submitted={props.submitAttemptCount > 0}
     />
     <Field
-      label="Heslo"
+      label="Password"
       type="password"
       name="password"
       on:input={props.handleInput}
@@ -69,7 +72,7 @@
       submitted={props.submitAttemptCount > 0}
     />
     <Field
-      label="Heslo znovu"
+      label="Repeat password"
       type="password"
       name="passwordRepeat"
       on:input={props.handleInput}
@@ -79,7 +82,7 @@
       touched={props.touched["passwordRepeat"]}
       submitted={props.submitAttemptCount > 0}
     />
-    <PrimaryButton>Registrovat</PrimaryButton>
-    {status}
+    <PrimaryButton>Register</PrimaryButton>
+    <TimedShow bind:value={status}/>
   </Form>
 </Sveltik>

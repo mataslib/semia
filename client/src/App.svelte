@@ -16,7 +16,7 @@
 
 <main>
   {#if $isAuthenticated}
-    <a class="logout" href="" on:click|preventDefault={logout}>odhlásit</a>
+    <a class="logout" href="" on:click|preventDefault={logout}>Logout</a>
     <Router>
       <Route path="/">
         <Index/>      
