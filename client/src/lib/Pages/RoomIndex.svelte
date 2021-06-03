@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { token } from "../store";
+  import { token } from "../shared/store/store";
   import { setContext } from "svelte";
   import { useParams } from "svelte-navigator";
-  import Chat from "../Chat.svelte";
+  import Chat from "../Room/Chat.svelte";
   import { io } from "socket.io-client";
-  import PrimaryButton from "../PrimaryButton.svelte";
-  import Modal from "../Modal.svelte";
-  import JoinRoomMeeting from "../JoinRoomMeeting.svelte";
-  import RoomMeeting from "../RoomMeeting.svelte";
-  import RoomMembers from "../RoomMembers.svelte";
-  import { server } from "../globals";
+  import PrimaryButton from "../shared/PrimaryButton.svelte";
+  import Modal from "../shared/Modal.svelte";
+  import JoinRoomMeeting from "../Room/JoinRoomMeeting.svelte";
+  import RoomMeeting from "../Room/RoomMeeting.svelte";
+  import RoomMembers from "../Room/RoomMembers.svelte";
+  import { server } from "../shared/globals";
 
   const params = useParams();
   const { id: roomId } = $params;

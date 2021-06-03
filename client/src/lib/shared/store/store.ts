@@ -1,6 +1,6 @@
 import { writable, derived } from "svelte/store";
 import { io } from "socket.io-client";
-import { server } from "./globals";
+import { server } from "../globals";
 
 
 

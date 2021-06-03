@@ -2,7 +2,7 @@
   import { getContext, tick, onMount } from "svelte";
   import type * as types from "semiaserver/dist/types";
   import type { Socket } from "socket.io-client";
-import { server } from "./globals";
+import { server } from "../shared/globals";
 
   const roomSocket: Socket = getContext('roomSocket');
 

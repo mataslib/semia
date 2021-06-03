@@ -1,7 +1,7 @@
 <script lang="ts">
   import { v4 as uuid } from "uuid";
-  import Chat from "./Chat.svelte";
-  import DynamicComponent from "./DynamicComponent.svelte";
+  import Chat from "../../Room/Chat.svelte";
+  import DynamicComponent from "../DynamicComponent.svelte";
   import Input from "./Input.svelte";
   export let label;
   export let error;

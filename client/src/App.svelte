@@ -1,16 +1,14 @@
 <script lang="ts">
-  import Login from "./lib/Login.svelte";
-  import Room from "./lib/Pages/Room.svelte";
-  import Index from "./lib/Pages/Index.svelte";
+  import RoomIndex from "./lib/Pages/RoomIndex.svelte";
+  import UserIndex from "./lib/Pages/UserIndex.svelte";
   import { Router, Route, navigate } from "svelte-navigator";
-  import { isAuthenticated } from "./lib/store";
-  import Register from "./lib/Register.svelte";
-  import Modal from "./lib/Modal.svelte";
-  import {logout as storeLogout} from "./lib/store";
-  
+  import { isAuthenticated } from "./lib/shared/store/store";
+  import { logout as storeLogout } from "./lib/shared/store/store";
+  import AnonymIndex from "./lib/Pages/AnonymIndex.svelte";
+
   function logout() {
     storeLogout();
-    navigate('/');
+    navigate("/");
   }
 </script>
 
@@ -19,43 +17,19 @@
     <a class="logout" href="" on:click|preventDefault={logout}>Logout</a>
     <Router>
       <Route path="/">
-        <Index/>      
+        <UserIndex />
       </Route>
 
       <Route path="/room/:id">
-        <Room/>
+        <RoomIndex />
       </Route>
     </Router>
   {:else}
-    <Modal isOpen={true}>
-      <div class="modalcontent">
-        <h1>Login</h1>
-        <Login />
-      </div>
-      <hr>
-      <div class="modalcontent">
-        <h2>Register</h2>
-        <Register/>
-      </div>
-    </Modal>
+    <AnonymIndex />
   {/if}
 </main>
 
 <style>
-  .modalcontent {
-    padding: 15px;
-  }
-  .logout {
-    position: fixed;
-    margin: 8px 30px;
-    right: 0;
-    top: 0;
-    z-index: 9;
-  }
-  hr {
-    border-color: black;
-  }
-
   :global(html, body) {
     font-family: Arial, Helvetica, sans-serif;
   }
@@ -72,7 +46,7 @@
   :global(html, body) {
     margin: 0;
     padding: 0;
-    background-color: #2E3440;
-    color: #D8DEE9;
+    background-color: #2e3440;
+    color: #d8dee9;
   }
 </style>

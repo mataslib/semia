@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { getDeviceStore } from "./media.store";
-  import type { DeviceStore } from "./media.store";
+  import { getDeviceStore } from "../store/media.store";
+  import type { DeviceStore } from "../store/media.store";
   import Select from "./Select.svelte";
 
   export let kind: MediaDeviceKind;

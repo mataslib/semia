@@ -3,7 +3,7 @@
   import type * as types from "semiaserver/dist/types";
   import type { Socket } from "socket.io-client";
   import MeetingMember from "./MeetingMember.svelte";
-  import { initPeerConnection, PeerConnectionDecorator } from "./webrtc";
+  import { initPeerConnection, PeerConnectionDecorator } from "../shared/webrtc";
 
   export let mediaStream: MediaStream;
 

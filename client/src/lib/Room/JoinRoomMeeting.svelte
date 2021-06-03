@@ -1,9 +1,9 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import SelectMediaDevice from "./SelectMediaDevice.svelte";
-  import Field from "./Field.svelte";
-  import PrimaryButton from "./PrimaryButton.svelte";
-import { triggerPermissionPrompt } from "./media";
+  import SelectMediaDevice from "../shared/form/SelectMediaDevice.svelte";
+  import Field from "../shared/form/Field.svelte";
+  import PrimaryButton from "../shared/PrimaryButton.svelte";
+import { triggerPermissionPrompt } from "../shared/media";
 
   const dispatch = createEventDispatcher();
   let mediaStream: MediaStream = new MediaStream();

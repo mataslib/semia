@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { userSocket } from "./store";
+  import { userSocket } from "../shared/store/store";
   import { Link } from "svelte-navigator";
   import type * as types from "semiaserver/dist/types";
 

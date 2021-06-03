@@ -1,6 +1,6 @@
 <script>
-  import NewRoom from "../NewRoom.svelte";
-  import RoomList from "../RoomList.svelte";
+  import NewRoom from "../User/NewRoom.svelte";
+  import RoomList from "../User/RoomList.svelte";
 </script>
 
 <div class="layout">

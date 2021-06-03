@@ -1,8 +1,9 @@
 // "Perfect negotiation" pattern from
 // https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation
-// prividing ability to crud stream tracks (renegotiation)
+// providing ability to crud stream tracks (renegotiation)
 
 const config = {
+  // iceServers needed in case when users are not in same network (behind NAT, firewalls...)
   // iceServers: [{ urls: "stun:stun.mystunserver.tld" }]
 };
 

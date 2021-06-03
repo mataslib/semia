@@ -1,5 +1,5 @@
 
-import { getConnectedDevices } from "./media";
+import { getConnectedDevices } from "../media";
 import { Writable, writable } from "svelte/store";
 
 export interface DeviceStore extends Writable<MediaDeviceInfo[]>

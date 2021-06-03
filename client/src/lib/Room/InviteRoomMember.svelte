@@ -1,13 +1,13 @@
 <script lang="ts">
-  import Field from "./Field.svelte";
+  import Field from "../shared/form/Field.svelte";
   import { Sveltik, Form } from "sveltik";
   import * as yup from "yup";
   import type * as types from "semiaserver/dist/types";
   import * as typesOther from "semiaserver/dist/types";
-  import { schemaValidate } from "./schemaValidate";
+  import { schemaValidate } from "../shared/validation/schemaValidate";
   import type { Socket } from "socket.io-client";
   import { getContext } from "svelte";
-import TimedShow from "./TimedShow.svelte";
+import TimedShow from "../shared/TimedShow.svelte";
 
   const roomSocket: Socket = getContext("roomSocket");
 

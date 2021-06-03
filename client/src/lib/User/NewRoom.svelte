@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { userSocket } from "./store";
+  import { userSocket } from "../shared/store/store";
   import type * as types from "semiaserver/dist/types";
   import * as typesOther from "semiaserver/dist/types";
   import { Sveltik, Form } from "sveltik";
-  import PrimaryButton from "./PrimaryButton.svelte";
-  import { schemaValidate } from "./schemaValidate";
-  import Field from "./Field.svelte";
-  import TimedShow from "./TimedShow.svelte";
+  import PrimaryButton from "../shared/PrimaryButton.svelte";
+  import { schemaValidate } from "../shared/validation/schemaValidate";
+  import Field from "../shared/form/Field.svelte";
+  import TimedShow from "../shared/TimedShow.svelte";
 
   const initialValues = {
     name: "",

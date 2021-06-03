@@ -1,13 +1,13 @@
 <script lang="ts">
-  import Field from "./Field.svelte";
-  import { anonymSocket } from "./store";
+  import Field from "../shared/form/Field.svelte";
+  import { anonymSocket } from "../shared/store/store";
   import { userRegisterReqSchema } from "semiaserver/dist/types";
   import type * as types from "semiaserver/dist/types";
   import * as yup from "yup";
-  import PrimaryButton from "./PrimaryButton.svelte";
-  import { schemaValidate } from "./schemaValidate";
+  import PrimaryButton from "../shared/PrimaryButton.svelte";
+  import { schemaValidate } from "../shared/validation/schemaValidate";
   import { Sveltik, Form } from "sveltik";
-  import TimedShow from "./TimedShow.svelte";
+  import TimedShow from "../shared/TimedShow.svelte";
 
   let status: string = "";
   const initialValues = {
