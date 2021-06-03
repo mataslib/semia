@@ -29,10 +29,13 @@ Build client: svelte a typescript na javascript, css, ... (vytvoření složky d
 cd /workspace/client && npm run build
 ```
 
+Vytvoření symlinku na build clienta
+```bash
+cd /workspace/server && ln -s ../client/dist/ client
+```
+
 ## Spuštění serveru
 
-ln -s ../client/dist/ client
-// create symlink to client dist folder
 ```bash
 cd /workspace/server && npm run start
 # klient dostupný na http://localhost:8086
