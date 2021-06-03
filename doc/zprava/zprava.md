@@ -26,7 +26,7 @@ Komunikace mezi serverem a klientem je zajištěna pomocí knihovny SocketIO, č
 
 Schůzka (videohovor) je zajištěna pomocí full-mesh (každý s každým) peer-to-peer WebRTC spojení s použítím "perfect negotiation" vzoru (https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation). Ten je potřeba v případě, že se nahrazují, odebírají či přidávají tracky do streamu při probíhajícím spojení (screen share), v takovém případě totiž musí proběhnout znovuvyjednání spojení "renegotiation".
 
-Routování na serveru zajišťuje Express. Všechny routy začínající "/public/" jsou servírovány ze serveru, složky public (např. přílohy chatu). Všechny routy "/socket.io/" jsou předány ke zpracování SocketIO. Všechny ostatní routy se server snaží najít v buildu clientu, který je na server nainstalován pomocí npm, tedy se je snaží najít v příslušném node modulu. Všechno ostatní, i neexistující, je nasměrováno do index.html clienta v node modulech, neboť server nezná klientské routy. 
+Routování na serveru zajišťuje Express. Všechny routy začínající "/public/" jsou servírovány ze serveru, složky public (např. přílohy chatu). Všechny routy "/socket.io/" jsou předány ke zpracování SocketIO. Všechny ostatní routy se server snaží najít v buildu clientu, složka "client". Všechno ostatní, i neexistující, je nasměrováno do index.html clienta, neboť server nezná klientské routy. 
 
 Mongodb databáze slouží k uchování dat jako je historie chatu, vytvořené místnosti, uživatelé, ...
 

@@ -4,6 +4,12 @@ services:
   node:
     image: mcr.microsoft.com/vscode/devcontainers/typescript-node:0-14-buster
     restart: always
+    # keep running container
+    command: tail -F anything /dev/null
+    volumes:
+      - .:/workspace
+    ports: 
+      - 8086:8086
     
   mongo:
     image: mongo
@@ -13,3 +19,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - mongodata:/data/db
+  
+volumes:
+  mongodata:

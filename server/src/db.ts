@@ -1,8 +1,7 @@
 import mongodb from 'mongodb'
+import { dbconnectionstring, dbname } from './globals';
 const { MongoClient } = mongodb
 
-const url = 'mongodb://root:root@mongo:27017';
-const dbname = 'semia';
 
 // Use connect method to connect to the server
 let _db: mongodb.Db;
@@ -23,7 +22,7 @@ export async function getClient(): Promise<mongodb.MongoClient>
   }
 
   return new Promise((resolve, reject) => {
-    MongoClient.connect(url, function (err, client) {
+    MongoClient.connect(dbconnectionstring, function (err, client) {
       if (err) {
         console.debug(err);
         reject(err);

@@ -9,17 +9,16 @@ const __dirname = path.resolve();
 import { initSocket as initAnonymSocket } from "./socket/anonymSocket";
 import { initSocket as initUserSocket } from "./socket/userSocket";
 import { initSocket as initRoomSocket } from "./socket/roomSocket";
-
-const port = 8086;
+import { serverport } from "./globals";
 
 // Create http server
 const expressApp = express();
 // server files from public folder
 expressApp.use('/public', express.static(__dirname+'/public'));
 // client files
-expressApp.use(express.static(__dirname+'/node_modules/semiaclient/dist'));
+expressApp.use(express.static(__dirname+'/client'));
 // every other route to client index.html
-expressApp.use('*', express.static(__dirname+'/node_modules/semiaclient/dist/index.html'));
+expressApp.use('*', express.static(__dirname+'/client/index.html'));
 
 const httpServer = http.createServer(expressApp);
 
@@ -38,5 +37,5 @@ initUserSocket({ io });
 // socket with authneticated user & member of room
 initRoomSocket({ io });
 
-httpServer.listen(port);
-console.log(`Server listening on port ${port}. Go to http://localhost:${port}.`);
+httpServer.listen(serverport);
+console.log(`Server listening on port ${serverport}. Go to http://localhost:${serverport}.`);

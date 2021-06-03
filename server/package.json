@@ -7,7 +7,6 @@
   "dependencies": {
     "express": "^4.17.1",
     "mongodb": "^3.6.6",
-    "semiaclient": "file:../client",
     "socket.io": "^4.0.2",
     "uuid": "^8.3.2",
     "yup": "^0.32.9"
