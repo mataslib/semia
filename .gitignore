@@ -3,4 +3,3 @@
 .devcontainer/
 /server/public/
 /server/dist/
-/client/dist/
