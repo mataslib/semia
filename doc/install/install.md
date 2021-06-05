@@ -1,24 +1,62 @@
-# Zapnutí kontejneru a přechod do bash
+Dokument obsahuje:
 
-// v projektové složce, kde se nachází `docker-compose.yml`
-```bash
-docker-compose up -d
-docker-compose exec node bash
-```
-
-# 1. Produkce
+1. Zjednodušenou instalaci: Pro ukázku, demo. Instaluje se pouze server. Pro jednoduchost jsem projekt odevzdal s již vybuilděným klientem (složka dist v client složce). To znamená, není potřeba instalovat závislosti klienta a buildit ho.
+2. Plnou instalaci: Pro vývoj. 
 
 **Poznámka**: v případě problémů s oprávněním pouštět příkazy se sudo
 
 **Poznámka**: spustit příkazy od shora dolů
 
-## Instalace závislostí a Build
+# Zapnutí docker kontejneru a přechod do bash (společné pro všechny instalace)
+
+V projektové složce, kde se nachází `docker-compose.yml`.
+```bash
+docker-compose up -d
+docker-compose exec node bash
+```
+
+**Poznámka**: Všechny další příkazy v tomto dokumentu jsou spouštěny v bashi kontejneru, kterou jsme právě otevřeli.
+
+# 1. Zjednodušená instalace
+
+## 1.1 Instalace závislostí
+
+```bash
+cd /workspace/server && npm install
+```
+
+## 1.2 Build serveru
+
+Build server: typescript na javascript (vytvoření složky dist)
+```bash
+cd /workspace/server && npm run build
+```
+
+## 1.3 Spuštění serveru
+```bash
+cd /workspace/server && npm run start
+
+# server dostupný na http://localhost:8086
+```
+
+---
+
+# 2. Plná instalace
+
+- A. Produkční
+- B. Vývojová
+
+## 2.A. Produkční instalace
+
+### 2.A.1 Instalace závislostí
 
 Instalace závislostí 
 ```bash
 cd /workspace/server && npm install
 cd /workspace/client && npm install
 ```
+
+### 2.A.2 Build
 
 Build server: typescript na javascript (vytvoření složky dist)
 ```bash
@@ -29,31 +67,33 @@ Build client: svelte a typescript na javascript, css, ... (vytvoření složky d
 cd /workspace/client && npm run build
 ```
 
-Vytvoření symlinku na build clienta
-```bash
-cd /workspace/server && ln -s ../client/dist/ client
-```
-
-## Spuštění serveru
+### 2.A.3 Spuštění serveru
 
 ```bash
 cd /workspace/server && npm run start
-# klient dostupný na http://localhost:8086
+
+# server dostupný na http://localhost:8086
 ```
 
 ---
 
-# 2. Vývoj (Automatický build při změnách souborů, Automatické projevení úprav)
+## 2.B. Vývojová instalace (Automatický build při změnách souborů, Automatické projevení úprav)
 
-## Instalace závislostí
+### 2.B.1 Instalace závislostí
 
 ```bash
 cd /workspace/server && npm install
 cd /workspace/client && npm install
 ```
 
-## Spuštění dev serverů (potřeba dvě bashe)
+### 2.B.2 Spuštění dev serverů (potřeba dvě bashe)
 ```bash
 cd /workspace/server && npm run dev
+
+# klient dostupný na http://localhost:3000
+```
+```bash
 cd /workspace/client && npm run dev
+
+# server dostupný na http://localhost:8086
 ```

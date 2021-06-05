@@ -13,9 +13,9 @@ const expressApp = express();
 // serve files from public folder
 expressApp.use('/public', express.static(__dirname+'/public'));
 // serve client files from client folder (symlink)
-expressApp.use(express.static(__dirname+'/client'));
+expressApp.use(express.static(__dirname+'/../client/dist'));
 // every other route to client's index.html
-expressApp.use('*', express.static(__dirname+'/client/index.html'));
+expressApp.use('*', express.static(__dirname+'/../client/dist/index.html'));
 
 const httpServer = http.createServer(expressApp);
 
