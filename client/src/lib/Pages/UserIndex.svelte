@@ -1,4 +1,7 @@
 <script>
+  /**
+   * Logged-in user index page
+  */
   import NewRoom from "../User/NewRoom.svelte";
   import RoomList from "../User/RoomList.svelte";
 </script>

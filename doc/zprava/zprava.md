@@ -62,6 +62,6 @@ Zápory:
 - SocketIO knihovna na serveru omezuje klienty na technoligie, pro které je dostupný SocketIO client.
 - Neotestováno komplexně (různé sítě, různá zařízení, různé prohlížeče, zátěžové testy, unit testy, e2e testy...), budou přítomny bugy.
 - Nekompletní funkcionalita typu mazání místností, odebírání členů místností, autorizace členů místností, identifikace účastníků.
-- Architekturu serveru by bylo dobré vylepšit, přidat DAL vrstvu, docílit nezávislost na uložišti dat...
-- Bezpečnost access tokenů, není implementována časová expirace + nebyla dosažena šifrovaná komunikace - možnost odchycení tokenu.
+- Architekturu serveru by bylo dobré vylepšit, přidat DAL vrstvu, docílit nezávislost na uložišti dat.
+- Bezpečnost tokenů, ukládat hashované tokeny, časová expirace + nebyla dosažena šifrovaná komunikace - možnost odchycení tokenu. Nebo vyřešit implementací hotového řešení jako je JWT.
 - Pomalá detekce odpojení účastníka schůzky.

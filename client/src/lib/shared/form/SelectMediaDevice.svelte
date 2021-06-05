@@ -1,9 +1,14 @@
 <script lang="ts">
+  /**
+   * Form select component having options with devices of some kind
+   */
   import { getDeviceStore } from "../store/media.store";
   import type { DeviceStore } from "../store/media.store";
   import Select from "./Select.svelte";
 
   export let kind: MediaDeviceKind;
+  let waitingDevices = true;
+
   let options = [];
   const emptyOption = {
     label: "",
@@ -11,7 +16,10 @@
   };
 
   let store: DeviceStore;
-  getDeviceStore(kind).then((tmp) => (store = tmp));
+  getDeviceStore(kind).then((tmp) => {
+    store = tmp;
+    waitingDevices = false;
+  });
 
   $: if ($store) {
     options = [
@@ -22,6 +30,12 @@
       })),
     ];
   }
+
+  $: console.log(options);
 </script>
 
-<Select {options} on:input />
+{#if waitingDevices}
+  Getting devices...
+{:else}
+  <Select {options} on:input />
+{/if}

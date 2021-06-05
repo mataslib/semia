@@ -1,4 +1,7 @@
 <script>
+  /**
+   * Generic modal component
+   */
   export let isOpen = false;
 </script>
 

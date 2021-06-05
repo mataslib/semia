@@ -1,4 +1,7 @@
 <script>
+  /**
+   * Anonymous user index page 
+  */
   import Login from "../Anonym/Login.svelte";
   import Register from "../Anonym/Register.svelte";
   import Modal from "../shared/Modal.svelte";
@@ -19,13 +22,6 @@
 <style>
   .modalcontent {
     padding: 15px;
-  }
-  .logout {
-    position: fixed;
-    margin: 8px 30px;
-    right: 0;
-    top: 0;
-    z-index: 9;
   }
   hr {
     border-color: black;

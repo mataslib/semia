@@ -1,4 +1,7 @@
 <script lang="ts">
+  /**
+   * Room index page
+   */
   import { token } from "../shared/store/store";
   import { setContext } from "svelte";
   import { useParams } from "svelte-navigator";
@@ -28,7 +31,10 @@
       token: $token,
     },
   });
+  // Create new context with roomSocket.
+  // Context can be accessed by all descendant components  
   setContext("roomSocket", roomSocket);
+  
   roomSocket.on("connect", () => (socketState = "connected"));
   roomSocket.on("connect_error", (err) => {
     socketState = "error";
@@ -42,7 +48,6 @@
     meetingInProgress = true;
     showJoinMeeting = false;
   }
-
   function leaveMeeting() {
     meetingInProgress = false;
     mediaStream.getTracks().forEach((track) => track.stop());

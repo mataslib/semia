@@ -1,13 +1,23 @@
 <script lang="ts">
+  /**
+   * General form field component:
+   * - generates random id for input and label[for] (clickable label)
+   * - renders various components based on type and given props
+   * - renders errors
+   * - gives default design
+   */
   import { v4 as uuid } from "uuid";
-  import Chat from "../../Room/Chat.svelte";
   import DynamicComponent from "../DynamicComponent.svelte";
   import Input from "./Input.svelte";
-  export let label;
-  export let error;
+  export let label = undefined;
+  export let error = undefined;
   export let touched = false;
   export let submitted = false;
-  export let id;
+  export let id = undefined;
+  export let input: Input = {};
+
+  let type = $$restProps["type"];
+  id = id ?? uuid();
 
   interface Input {
     component?: {
@@ -16,12 +26,6 @@
       listeners: [string, Function][];
     };
   }
-
-  export let input: Input = {};
-
-  let type = $$restProps["type"];
-
-  id = id ?? uuid();
 </script>
 
 <div class="formfield">

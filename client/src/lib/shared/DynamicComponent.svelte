@@ -1,7 +1,6 @@
 <script lang="ts">
-  // Allows create dynamic component from eg. data object,
-  // with component class, props and listeners stored in object
-  // or another data structure
+  // This component helps to create dynamic component from eg. data object,
+  // with component class, props and listeners passed as props
 
   export let component: object;
   export let listeners: [string, Function][] = [];

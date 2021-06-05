@@ -17,6 +17,9 @@ export function initSocket(params: { io: Server }) {
       throw "Socket is not User socket! Use user auth middleware.";
     }
 
+    /**
+     * - Returns list of rooms
+     */
     socket.on('room:list', async (message, sendResponse = emptyFn) => {
       withErrorCatch(sendResponse, async () => {
         const roomListReq = types.roomListReqSchema.validateSync(message);
@@ -26,6 +29,9 @@ export function initSocket(params: { io: Server }) {
       });
     });
 
+    /**
+     * - Creates a new room
+     */
     socket.on('room:create', async (message, sendResponse) => {
       withErrorCatch(sendResponse, async () => {
         const roomCreateReq = types.roomCreateReqSchema.validateSync(message);

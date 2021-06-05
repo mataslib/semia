@@ -1,3 +1,4 @@
+// Contains configuration of Vite build tool
 import { defineConfig } from 'vite'
 import svelte from '@sveltejs/vite-plugin-svelte'
 

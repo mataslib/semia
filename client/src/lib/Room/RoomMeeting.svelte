@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Room meeting component
+   * - Main meeting component
+   * - joins meeting
+   * - handles wrtc communication
+   * - handles actions like screen share, mute, pause video
+   * - renders meeting UI
+   */
   import { getContext, createEventDispatcher, onDestroy } from "svelte";
   import type * as types from "semiaserver/dist/types";
   import type { Socket } from "socket.io-client";
@@ -28,11 +36,15 @@
   let connections: Connections = {};
 
   async function joinMeeting() {
+    // tell server we want join room meeting
     joinRoomMeeting();
+    // Register handler that sends wrtc offers to new members
+    // on prompt from server
     sendWrtcOfferOnServerPrompt();
+    // Register handler that process wrtc signals
     processIncomingWrtcSignals();
   }
-  joinMeeting();
+  joinMeeting(); // trigger meeting join
 
   function joinRoomMeeting() {
     const joinMeetingMessage: types.RoomJoinMeetingMessage = {};
@@ -47,8 +59,8 @@
     );
   }
 
-  // On new member joins room meeting
-  // Server prompts me to make peer connection with him
+  // Server prompts me to make new peer connection with a new room member
+  // On event when new member joins room meeting
   function sendWrtcOfferOnServerPrompt() {
     roomSocket.on(
       "wrtc:send-offer",
@@ -61,10 +73,10 @@
         });
         // force peer connection to be established
         // even if there isn't any local track!
-        // Such user wouldn't see and hear other peer,
+        // Otherwise such user wouldn't see and hear other peer,
         // because peer connection starts establishing when addTrack is called,
-        // and we don't have any therefore connection wouldn't be established at all
-        // we use hack here and create data channel, which also starts establishing ;-)
+        // and we don't have any tracks therefore connection wouldn't be established at all
+        // we use this hack here and create data channel, which also trigger establishing
         connection.peerConnection.wrapped.createDataChannel("dummy");
       }
     );
@@ -76,6 +88,7 @@
 
       let peerConnection = connections[connectionId]?.peerConnection;
       // When i'm an answerer, I don't have PeerConnection object yet
+      // so I create new one
       if (!peerConnection) {
         const connection = createConnection({
           polite: true,
@@ -89,6 +102,14 @@
     });
   }
 
+  
+  /**
+   * - Initializes connection to other peer
+   * - Adds local tracks to connection
+   * - Registers connection state change listener
+   * - Registers new remote track listener
+   * @param params
+   */
   function createConnection(params: {
     polite: boolean;
     connectionId: ConnectionId;

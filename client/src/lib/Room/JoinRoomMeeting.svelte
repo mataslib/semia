@@ -1,24 +1,26 @@
 <script lang="ts">
+  /**
+   * Join room preparation component
+   * - allows to select and preview input video and audio media devices
+   */
   import { createEventDispatcher } from "svelte";
   import SelectMediaDevice from "../shared/form/SelectMediaDevice.svelte";
   import Field from "../shared/form/Field.svelte";
   import PrimaryButton from "../shared/PrimaryButton.svelte";
-import { triggerPermissionPrompt } from "../shared/media";
 
   const dispatch = createEventDispatcher();
   let mediaStream: MediaStream = new MediaStream();
+  // element with media stream preview
   let previewElement: HTMLMediaElement;
 
   let audioInId: string;
   let videoInId: string;
-  let loading = false;
-  let waitingPermissions = true;
+  let loadingDevices = false;
 
+  // updateStream on audion input or videon input device id change
   $: updateStream(audioInId, videoInId);
+  // updatePreviewElement on previewElement or mediaStream change
   $: updatePreviewElement(previewElement, mediaStream);
-
-  triggerPermissionPrompt().finally(() => waitingPermissions = false);
-
 
   function updatePreviewElement(
     previewElement: HTMLMediaElement,
@@ -30,7 +32,7 @@ import { triggerPermissionPrompt } from "../shared/media";
   }
 
   function updateStream(audioInId, videoInId) {
-    loading = true;
+    loadingDevices = true;
     let constraints = {};
 
     if (audioInId) {
@@ -56,10 +58,10 @@ import { triggerPermissionPrompt } from "../shared/media";
         .then((stream) => {
           mediaStream = stream;
         })
-        .finally(() => (loading = false));
+        .finally(() => (loadingDevices = false));
     } else {
       mediaStream = new MediaStream();
-      loading = false;
+      loadingDevices = false;
     }
   }
 
@@ -67,56 +69,53 @@ import { triggerPermissionPrompt } from "../shared/media";
     dispatch("joinAction", mediaStream);
   }
 
+  // find out whether media stream has no tracks on it's change
   $: isEmptyMediaStream = mediaStream.getTracks().length === 0;
 </script>
 
 <div class="joinroom">
-  {#if waitingPermissions}
-    Checking media devices permissions
-  {:else}
-    <p>
-      There are device (camera, microphone) identificators showed in select boxes
-      ("random" mixed characters and numbers) until permanent device permission is
-      given.<br /><br /> After you permanently allow device, you will see device labels
-      (names) next time, or after browser refresh.
-    </p>
+  <p>
+    There are device (camera, microphone) identificators showed in select boxes
+    ("random" mixed characters and numbers) until permanent device permission is
+    given.<br /><br /> After you permanently allow device, you will see device labels
+    (names) next time, or after browser refresh.
+  </p>
 
-    <Field
-      label="Audio In"
-      input={{
-        component: {
-          component: SelectMediaDevice,
-          props: { kind: "audioinput" },
-          listeners: [["input", (e) => (audioInId = e.target.value)]],
-        },
-      }}
-    />
-    <Field
-      label="Camera"
-      input={{
-        component: {
-          component: SelectMediaDevice,
-          props: { kind: "videoinput" },
-          listeners: [["input", (e) => (videoInId = e.target.value)]],
-        },
-      }}
-    />
+  <Field
+    label="Audio In"
+    input={{
+      component: {
+        component: SelectMediaDevice,
+        props: { kind: "audioinput" },
+        listeners: [["input", (e) => (audioInId = e.target.value)]],
+      },
+    }}
+  />
+  <Field
+    label="Camera"
+    input={{
+      component: {
+        component: SelectMediaDevice,
+        props: { kind: "videoinput" },
+        listeners: [["input", (e) => (videoInId = e.target.value)]],
+      },
+    }}
+  />
 
-    <div class="preview">
-      {#if !isEmptyMediaStream}
-        {#if videoInId}
-          <video bind:this={previewElement} autoplay playsinline controls />
-        {:else}
-          <audio bind:this={previewElement} autoplay playsinline controls />
-        {/if}
+  <div class="preview">
+    {#if !isEmptyMediaStream}
+      {#if videoInId}
+        <video bind:this={previewElement} autoplay playsinline controls />
+      {:else}
+        <audio bind:this={previewElement} autoplay playsinline controls />
       {/if}
-    </div>
-
-    {#if !loading}
-      <PrimaryButton on:click={joinAction}>Join</PrimaryButton>
-    {:else}
-      loading device...
     {/if}
+  </div>
+
+  {#if !loadingDevices}
+    <PrimaryButton on:click={joinAction}>Join</PrimaryButton>
+  {:else}
+    loading device...
   {/if}
 </div>
 

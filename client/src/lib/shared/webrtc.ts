@@ -1,3 +1,5 @@
+// WebRTC connection abstraction
+//
 // "Perfect negotiation" pattern from
 // https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation
 // providing ability to crud stream tracks (renegotiation)
@@ -18,6 +20,7 @@ export class PeerConnectionDecorator {
     const pc = this.wrapped;
 
     let makingOffer = false;
+    // renegotiation needed (changed tracks, ...)
     pc.onnegotiationneeded = async () => {
       try {
         makingOffer = true;
@@ -34,11 +37,6 @@ export class PeerConnectionDecorator {
     pc.onicecandidate = ({ candidate }) => {
       signaler.send({ candidate })
     };
-    // pc.oniceconnectionstatechange = () => {
-    //   if (pc.iceConnectionState === "failed") {
-    //     pc.restartIce();
-    //   }
-    // };
 
     let ignoreOffer = false;
     this.onmessage = async (signalMessage) => {
@@ -79,6 +77,10 @@ export class PeerConnectionDecorator {
     }
   }
 
+  /**
+   * Exposed method that must be called when new signal message arives
+   * @param message 
+   */
   public handleSignalMessage(message) {
     this.onmessage(message);
   }

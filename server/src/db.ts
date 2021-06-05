@@ -2,9 +2,10 @@ import mongodb from 'mongodb'
 import { dbconnectionstring, dbname } from './globals';
 const { MongoClient } = mongodb
 
-
-// Use connect method to connect to the server
 let _db: mongodb.Db;
+/**
+ * Returns Mongo Db object retreived from connected Mongo client.
+ */
 export async function getDb(): Promise<mongodb.Db> {
   if (_db) {
     return Promise.resolve(_db);
@@ -14,9 +15,13 @@ export async function getDb(): Promise<mongodb.Db> {
   return client.db(dbname);
 }
 
+
 let _client: mongodb.MongoClient;
-export async function getClient(): Promise<mongodb.MongoClient>
-{
+/**
+ * - Connects and returns Mongo client
+ * @returns 
+ */
+export async function getClient(): Promise<mongodb.MongoClient> {
   if (_client) {
     return Promise.resolve(_client);
   }

@@ -1,9 +1,15 @@
-// Authorizes user and attaches it's object to socket
 
 import { Socket } from "socket.io";
 import { getUserByToken } from "../accessToken";
 import * as types from "../types";
 
+/**
+ * Authenticates a user and attaches it's object to a socket
+ *
+ * @param socket 
+ * @param next 
+ * @returns 
+ */
 export const userAuthMiddleware = async (socket: Socket, next: Function) => {
   try {
     const token = socket.handshake?.auth?.token;
@@ -27,6 +33,12 @@ export interface UserSocket extends Socket {
   user: types.User
 }
 
+/**
+ * Whether socket has attached user object or not
+ *
+ * @param socket 
+ * @returns 
+ */
 export function isUserSocket(socket: Socket): socket is UserSocket {
   return 'user' in socket;
 }

@@ -6,6 +6,9 @@
   import { logout as storeLogout } from "./lib/shared/store/store";
   import AnonymIndex from "./lib/Pages/AnonymIndex.svelte";
 
+  /**
+   * Logs out user
+   */
   function logout() {
     storeLogout();
     navigate("/");
@@ -30,6 +33,14 @@
 </main>
 
 <style>
+  .logout {
+    position: fixed;
+    margin: 8px 30px;
+    right: 0;
+    top: 0;
+    z-index: 9;
+  }
+
   :global(html, body) {
     font-family: Arial, Helvetica, sans-serif;
   }

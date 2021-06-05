@@ -1,5 +1,4 @@
 // socket with anonymous (not logged in) user
-
 import { Server } from "socket.io";
 import { emptyFn, withErrorCatch } from "../utils";
 import * as types from "../types";
@@ -12,7 +11,11 @@ export function initSocket(params: {io: Server}) {
   const anonymSocket = io.of("/");
 
   anonymSocket.on("connection", (socket) => {
-    socket.on('authentication', async (message, sendResponse = emptyFn) => {
+
+    /**
+     * - Authenticates a user
+     */
+    socket.on('user:authenticate', async (message, sendResponse = emptyFn) => {
       withErrorCatch(sendResponse, async () => {
         const userAuthReq = types.userAuthReqSchema.validateSync(message);
 
@@ -41,6 +44,9 @@ export function initSocket(params: {io: Server}) {
       });
     });
 
+    /**
+     * Registers a new user
+     */
     socket.on('user:register', async (message, sendResponse = emptyFn) => {
       withErrorCatch(sendResponse, async () => {
         const userRegisterReq = types.userRegisterReqSchema.validateSync(message);

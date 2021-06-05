@@ -1,4 +1,7 @@
 <script lang="ts">
+  /**
+   * User register form
+   */
   import Field from "../shared/form/Field.svelte";
   import { anonymSocket } from "../shared/store/store";
   import { userRegisterReqSchema } from "semiaserver/dist/types";

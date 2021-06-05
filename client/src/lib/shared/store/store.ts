@@ -1,14 +1,20 @@
+/**
+ * This file contains main application stores.
+ * Store holds data that can be accessed from all components.
+ * Components subscribe to store value changes.
+ */
 import { writable, derived } from "svelte/store";
 import { io } from "socket.io-client";
 import { server } from "../globals";
 
-
-
+// anonym socket store
 export const anonymSocket = writable(
   io(`ws://${server}`, {
     transports: ["websocket"],
   }
 ));
+
+
 
 function createTokenStore() {
   const { subscribe, set } = writable(null, (set) => {
@@ -24,9 +30,13 @@ function createTokenStore() {
     }
   }
 }
-
+// acess token store
 export const token = createTokenStore();
+
+
+// whether user is authenticated store
 export const isAuthenticated = writable(false);
+// user socket store
 export const userSocket = writable(null);
 token.subscribe((token) => {  
   if (token) {
@@ -51,38 +61,6 @@ token.subscribe((token) => {
   }
 });
 
-
-export const audioIn = writable(null);
-export const audioOut = writable(null);
-export const videoIn = writable(null);
-
-export const mediaStream = derived([audioIn, videoIn], ([$audioIn, $videoIn], set) => {
-  const audioId = $audioIn?.deviceId;
-  const videoId = $videoIn?.deviceId;
-
-  if (audioId || videoId) {
-    let constraints = {};
-
-    if (audioId) {
-      constraints['audio'] = {
-        'deviceId': $audioIn?.deviceId,
-        'echoCancellation': true,
-      };
-    }
-
-    if (videoId) {
-      constraints['video'] = {
-        'deviceId': $videoIn?.deviceId,
-      };
-    }
-
-    navigator.mediaDevices.getUserMedia(constraints)
-      .then(mediaStream => set(mediaStream))
-      ;
-  } else {
-    set(null);
-  }
-});
 
 export let logout = () => {
   window.sessionStorage.setItem('token', null);

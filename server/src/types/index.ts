@@ -1,3 +1,7 @@
+/**
+ * This file contains types ("Api", document, ...) and validation schemas
+ * Those can also be used by a client.
+ */
 import * as yup from "yup";
 import mongodb from 'mongodb'
 
@@ -10,7 +14,6 @@ export interface ErrorResponse {
     message: string
   }
 }
-
 
 export interface UserRegisterMessage
 {

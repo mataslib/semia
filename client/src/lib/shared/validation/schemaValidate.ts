@@ -1,5 +1,9 @@
 import * as yup from "yup";
 
+/**
+ * Creates function that validates yup validation schema
+ * and returns errors object
+ */
 export function schemaValidate(validationSchema: yup.AnySchema)
 {
   return (values) => {

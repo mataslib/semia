@@ -1,5 +1,4 @@
 // socket with authneticated user & member of room
-
 import { Server, Socket } from "socket.io";
 import { isRoomSocket, RoomSocket } from "../middleware/roomAuth";
 import { userAuthMiddleware } from "../middleware/userAuth";
@@ -15,7 +14,9 @@ import { userCollection } from "../collection/userCollection";
 export function initSocket(params: { io: Server }) {
   const { io } = params;
 
+  // dynamic socket endpoint, socket per room (room-123, ...)
   const roomSocket = io.of(/^\/room-[\w\d]+$/);
+
   roomSocket.use(userAuthMiddleware);
   roomSocket.use(roomUserAuthMiddleware);
 
@@ -24,6 +25,10 @@ export function initSocket(params: { io: Server }) {
       throw "Socket is not Room socket! Use room auth middleware.";
     }
 
+    /**
+     * - prompts meeting members to send their offers to new member
+     * - joins the new member into socket room so he will receive room broadcasts  
+     */
     socket.on('room:joinMeeting', (message, sendResponse = emptyFn) => {
       withErrorCatch(sendResponse, () => {
         const joinMeetingReq = types.joinRoomMeetingReqSchema.validateSync(message);
@@ -32,11 +37,12 @@ export function initSocket(params: { io: Server }) {
         const sendOfferMessage: types.WrtcSendOfferMessage = {
           to: socket.id, connectionId: uuid()
         }
-        // Prompt room members to send offers to new member before joining him to socket room
+        // Prompt room members to send offers to a new member
+        // before joining him to socket room
         // otherwise he would also send offer to himself...
         socket.to(socketRoomId).emit(`wrtc:send-offer`, sendOfferMessage);
-
         socket.join(socketRoomId);
+
         const response: types.RoomJoinMeetingResponse = {
           result: true
         };
@@ -44,6 +50,9 @@ export function initSocket(params: { io: Server }) {
       });
     });
 
+    /**
+     * - disconnects user from socket room
+     */
     socket.on('room:leaveMeeting', (message, sendResponse = emptyFn) => {
       withErrorCatch(sendResponse, () => {
         const leaveMeetingReq = types.leaveRoomMeetingReqSchema.validateSync(message);
@@ -57,6 +66,9 @@ export function initSocket(params: { io: Server }) {
       });
     });
 
+    /**
+     * - returns room messages
+     */
     socket.on('room:messages', async (sendResponse = emptyFn) => {
       withErrorCatch(sendResponse, async () => {
         const room = await roomCollection.findOne({
@@ -71,6 +83,9 @@ export function initSocket(params: { io: Server }) {
       });
     });
 
+    /**
+     * - creates room message
+     */
     socket.on('room:createMessage', async (message, sendResponse = emptyFn) => {
       withErrorCatch(sendResponse, async () => {
         const createMessageReq = types.roomCreateMessageReqSchema.validateSync(message);
@@ -125,6 +140,9 @@ export function initSocket(params: { io: Server }) {
       });
     });
 
+    /**
+     * - returns list of room mebers
+     */
     socket.on('room:memberList', async (sendResponse = emptyFn) => {
       withErrorCatch(sendResponse, async () => {
         const result = await roomCollection.findOne({
@@ -141,6 +159,9 @@ export function initSocket(params: { io: Server }) {
       });
     });
 
+    /**
+     * - adds a user to a room
+     */
     socket.on('room:inviteMember', async (message, sendResponse = () => { }) => {
       withErrorCatch(sendResponse, async () => {
         const inviteMessage = types.roomInviteMemberReqSchema.validateSync(message);
@@ -182,6 +203,9 @@ export function initSocket(params: { io: Server }) {
       });
     });
 
+    /**
+     * - Sends wrtc signals
+     */
     socket.on('wrtc:signal', (message) => {
       socket.to(message.to).emit('wrtc:signal', { ...message, from: socket.id });
     });

@@ -1,5 +1,7 @@
 <script>
-
+  /**
+   * Styled button component
+  */
 </script>
 
 <button on:click>

@@ -1,17 +1,21 @@
 <script lang="ts">
+  /**
+   * Chat component
+   */
   import { getContext, tick, onMount } from "svelte";
   import type * as types from "semiaserver/dist/types";
   import type { Socket } from "socket.io-client";
-import { server } from "../shared/globals";
+  import { server } from "../shared/globals";
 
-  const roomSocket: Socket = getContext('roomSocket');
+  const roomSocket: Socket = getContext("roomSocket");
 
   let messages = [];
-  let createMessageError: string = '';
-  let roomMessagesError: string = '';
+  let createMessageError: string = "";
+  let roomMessagesError: string = "";
   let msgsEl: HTMLDivElement;
 
   onMount(() => {
+    // fetch existing chat history
     roomSocket.emit("room:messages", (response: types.RoomMessagesResponse) => {
       if ("result" in response) {
         messages = response.result;
@@ -19,13 +23,16 @@ import { server } from "../shared/globals";
         roomMessagesError = response.error.message;
       }
     });
-
-    roomSocket.on("room:newMessage", async (message: types.NewMessageMessage) => {
-      console.log("room:newMessage", message);
-      messages = [...messages, message.message];
-      await tick();
-      msgsEl.scrollTop = msgsEl.scrollHeight;
-    });
+    // add message on new chat message and scroll to chat bottom 
+    roomSocket.on(
+      "room:newMessage",
+      async (message: types.NewMessageMessage) => {
+        console.log("room:newMessage", message);
+        messages = [...messages, message.message];
+        await tick();
+        msgsEl.scrollTop = msgsEl.scrollHeight;
+      }
+    );
   });
 
   let formEl: HTMLFormElement;
@@ -36,6 +43,7 @@ import { server } from "../shared/globals";
       return;
     }
 
+    // create file request when form contains file
     let fileReq = {};
     if (fileEl.value) {
       const reader = new FileReader();
@@ -54,6 +62,7 @@ import { server } from "../shared/globals";
       };
     }
 
+    // create message request
     const createMessageReq: types.RoomCreateMessageReq = {
       ...{
         message: messageEl.value,
@@ -61,14 +70,18 @@ import { server } from "../shared/globals";
       ...fileReq,
     };
 
-    roomSocket.emit("room:createMessage", createMessageReq, (response: types.RoomCreateMessageRes) => {
-      if ('result' in response) {
-        formEl.reset();        
-      } else {
-        createMessageError = response.error.message;
+    // communicate with server
+    roomSocket.emit(
+      "room:createMessage",
+      createMessageReq,
+      (response: types.RoomCreateMessageRes) => {
+        if ("result" in response) {
+          formEl.reset();
+        } else {
+          createMessageError = response.error.message;
+        }
       }
-    });
-
+    );
   }
 </script>
 
@@ -83,9 +96,7 @@ import { server } from "../shared/globals";
         <div class="msg-body">
           {message.message}
           {#if message.file}
-            <a
-              target="_blank"
-              href={`http://${server}/${message.file.path}`}
+            <a target="_blank" href={`http://${server}/${message.file.path}`}
               >{message.file.name}</a
             >
           {/if}
@@ -97,14 +108,17 @@ import { server } from "../shared/globals";
 </div>
 
 <div class="chatform-container">
-  <form class="chatform" bind:this={formEl} on:submit|preventDefault={sendMessage}>
+  <form
+    class="chatform"
+    bind:this={formEl}
+    on:submit|preventDefault={sendMessage}
+  >
     <textarea bind:this={messageEl} />
     <input bind:this={fileEl} type="file" />
     <button>Send</button>
     <div>{createMessageError}</div>
   </form>
 </div>
-
 
 <style>
   .chatform-container {

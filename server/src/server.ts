@@ -1,27 +1,23 @@
 import * as http from "http";
-import * as fs from 'fs';
-// import { server as WebSocketServer } from "websocket";
 import { Server } from "socket.io";
 import express from "express";
-import path from 'path';
-const __dirname = path.resolve();
-
 import { initSocket as initAnonymSocket } from "./socket/anonymSocket";
 import { initSocket as initUserSocket } from "./socket/userSocket";
 import { initSocket as initRoomSocket } from "./socket/roomSocket";
 import { serverport } from "./globals";
+import path from 'path';
+const __dirname = path.resolve();
 
-// Create http server
 const expressApp = express();
-// server files from public folder
+
+// serve files from public folder
 expressApp.use('/public', express.static(__dirname+'/public'));
-// client files
+// serve client files from client folder (symlink)
 expressApp.use(express.static(__dirname+'/client'));
-// every other route to client index.html
+// every other route to client's index.html
 expressApp.use('*', express.static(__dirname+'/client/index.html'));
 
 const httpServer = http.createServer(expressApp);
-
 
 const io = new Server(httpServer, {
   cors: {

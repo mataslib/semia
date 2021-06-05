@@ -1,3 +1,4 @@
+// Contains browser media abstractions
 
 /**
  * Important! Permissions (triggerPermissionPrompt) should be given first,
@@ -9,16 +10,17 @@
  */
 export async function getConnectedDevices(kind: MediaDeviceKind) {
   let devices = await navigator.mediaDevices.enumerateDevices();
-  console.log(devices);
   
   return devices.filter(device => device.kind === kind)
 }
 
-export async function triggerPermissionPrompt() {
-  const mediaStream = await navigator.mediaDevices.getUserMedia({
-    audio: true,
-    video: true,
-  });
+/**
+ * Prompts user permission for media devices by creating new stream
+ */
+export async function triggerPermissionPrompt(kinds: TriggerPermissionPromptKinds) {
+  const mediaStream = await navigator.mediaDevices.getUserMedia(kinds);
   // we immediately destroy stream after prompt
   mediaStream.getTracks().forEach(track => track.stop());
 }
+
+export type TriggerPermissionPromptKinds = {audio?: boolean, video?: boolean};

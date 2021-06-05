@@ -1,8 +1,14 @@
 <script lang="ts">
-  import { onMount, onDestroy, tick } from "svelte";
+  /**
+   * Meeting member component
+   * - shows member's media stream and handles video resizing on viewport dimensions change
+   */
+  import { tick } from "svelte";
   export let stream: MediaStream;
   // since stream's addtrack and removetrack event listener not working as expected
-  // we can not watch track changes here and must rely that semone outside knows
+  // we can't watch track changes here
+  // and therefore we must rely on some stream managment outside
+  // which knows and passes this information here as prop
   export let streamHasTracks: boolean = true;
 
   let videoContainerEl: HTMLDivElement;
@@ -19,8 +25,9 @@
     return "";
   }
 
-  // video container is bigger than video when height 100% used on video tag
-  // (container mainstains original width, not shrinking to shrinked video size)
+  // video container is for unknown reason wider than video
+  // when video height is 100%, used on video tag
+  // (container mainstains original video width, not shrinking to shrinked video size)
   // so we set width manually on window resize, change, ...
   function handleWeirdVideoSizingBehavior() {
     let throttle = setTimeout(() => {}, 0);
@@ -34,19 +41,8 @@
     };
 
     if (videoEl) {
-      videoEl.removeEventListener(
-        "loadstart",
-        handleWeirdVideoSizingBehaviorFn
-      );
-      videoEl.removeEventListener(
-        "loadeddata",
-        handleWeirdVideoSizingBehaviorFn
-      );
-      videoEl.removeEventListener("suspend", handleWeirdVideoSizingBehaviorFn);
-      videoEl.removeEventListener("resize", handleWeirdVideoSizingBehaviorFn);
       videoEl.addEventListener("loadstart", handleWeirdVideoSizingBehaviorFn);
       videoEl.addEventListener("loadeddata", handleWeirdVideoSizingBehaviorFn);
-      // videoEl.addEventListener("suspend", handleWeirdVideoSizingBehaviorFn);
       videoEl.addEventListener("resize", handleWeirdVideoSizingBehaviorFn);
     }
   }

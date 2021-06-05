@@ -1,5 +1,8 @@
 
-import { getConnectedDevices } from "../media";
+/**
+ * This file contains stores holding media devices info
+ */
+import { getConnectedDevices, triggerPermissionPrompt } from "../media";
 import { Writable, writable } from "svelte/store";
 
 export interface DeviceStore extends Writable<MediaDeviceInfo[]>
@@ -11,6 +14,17 @@ async function createDeviceStore(kind: MediaDeviceKind): Promise<DeviceStore> {
   const updateDevices = (set) => {
     getDevices().then(devices => set(devices));
   }
+
+  if (kind === "audioinput" || kind === "videoinput") {
+    // Important! Permissions (triggerPermissionPrompt) should be given first,
+    // otherwise each device's label is empty in firefox
+    // and even device ids may be empty in chrome!
+    await triggerPermissionPrompt({
+      video: kind === "videoinput",
+      audio: kind === "audioinput" 
+    });
+  }
+
 
   const devices = await getDevices();
   const store = writable<MediaDeviceInfo[]>(devices);

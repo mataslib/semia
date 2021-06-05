@@ -1,6 +1,8 @@
 <script>
-  // Shows content for given time
-  // - Value prop must be binded to work correctly! Otherwise you must call reset manually.
+  /**
+   * Component that shows content for a given time
+   * - Value prop must be binded to work correctly! Otherwise you must call reset manually.
+   */
   export let timeout = 3000;
   export let value;
 

@@ -1,4 +1,7 @@
 <script lang="ts">
+  /**
+   * User login form
+   */
   import Field from "../shared/form/Field.svelte";
   import { anonymSocket, token } from "../shared/store/store";
   import { Sveltik, Form } from "sveltik";
@@ -27,7 +30,7 @@
     };
 
     $anonymSocket.emit(
-      "authentication",
+      "user:authenticate",
       message,
       (response: types.AuthResponse) => {
         if ("error" in response) {

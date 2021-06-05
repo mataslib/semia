@@ -1,11 +1,16 @@
-// Authorizes user as member of room and attaches room object to socket
-
 import mongodb from "mongodb";
 import { Socket } from "socket.io";
 import { roomCollection } from "../collection/roomCollection";
 import { isUserSocket, UserSocket } from "./userAuth";
 import * as types from "../types";
 
+/**
+ * Authenticates a user as a member of a room and attaches a room object to a socket
+ * 
+ * @param socket 
+ * @param next 
+ * @returns 
+ */
 export const roomUserAuthMiddleware = async (socket: Socket, next: Function) => {
   try {
     // User must be authorized as App user first
@@ -42,6 +47,12 @@ export interface RoomSocket extends Socket, UserSocket {
   room: types.Room
 }
 
+/**
+ * Whether socket has attached user and room object or not.
+ *
+ * @param socket 
+ * @returns 
+ */
 export function isRoomSocket(socket: Socket): socket is RoomSocket {
   return isUserSocket(socket) && 'room' in socket;
 }
