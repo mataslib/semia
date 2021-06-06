@@ -2,5 +2,5 @@
 .idea/
 .devcontainer/
 /server/public/uploads/*
-!/server/public/uploads/.gitthisfolder.txt
+!/server/public/uploads/.gitthisfolder
 /server/dist/
