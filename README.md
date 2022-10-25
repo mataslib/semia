@@ -3,7 +3,7 @@
 - Docker: vývoj. kontejner
 - WebRTC: API poskytujícího podporu pro telefonní hovory, video chat a peer-to-peer sdílení souborů aplikacím
 - Express: Nodejs server framework
-- SocketIO: Knihovna pro realtime komunikaci mezi serverem a klientem
+- SocketIO: (Websocket) knihovna pro realtime komunikaci mezi serverem a klientem
 - Typescript: Typovaný javascript
 - Svelte: Reaktivní frontend framework
 - Mongodb: MongoDB driver
